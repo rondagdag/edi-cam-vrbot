@@ -31,6 +31,7 @@ var height = 240;
 
 // WebSocket server
 var wsServer = new (ws.Server)({ port: configServer.wsPort });
+
 console.log('WebSocket server listening on port ' + configServer.wsPort);
 
 wsServer.on('connection', function(socket) {
@@ -63,6 +64,7 @@ wsServer.broadcast = function(data, opts) {
 
 // HTTP server to accept incoming MPEG1 stream
 http.createServer(function (req, res) {
+  res.socket.setTimeout(0);
   console.log(
     'Stream Connected: ' + req.socket.remoteAddress +
     ':' + req.socket.remotePort + ' size: ' + width + 'x' + height
