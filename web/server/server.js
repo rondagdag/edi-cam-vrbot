@@ -1,9 +1,10 @@
 // modules
 var childProcess = require('child_process')
-  , express = require('express')
   , http = require('http')
   , morgan = require('morgan')
   , ws = require('ws');
+const express = require("express");
+const io = require("socket.io")(http);
 
 // configuration files
 var configServer = require('./lib/config/server');
@@ -13,6 +14,46 @@ var app = express();
 app.set('port', configServer.httpPort);
 app.use(express.static(configServer.staticFolder));
 app.use(morgan('dev'));
+
+const Rover = require("./lib/rover");
+const board = new Board({
+  sigint: false,
+  repl: false,
+  io: new Edison()
+});
+
+board.on("ready", function() {
+
+  const rover = new Rover([
+    { dir: 6, pwm: 11 },
+    { dir: 4, pwm: 10 },
+  ]);
+  console.log("Rover: Initialized");
+
+  const camera = new Camera({
+    pan: 3, tilt: 5
+  });
+  console.log("Camera: Initialized");
+
+  io.on("connection", function(socket) {
+    console.log("VRBot: Connected");
+
+    socket.on("remote-control", function(data) {
+      if (data.component === "rover") {
+        rover.update(data.axis);
+      }
+
+      if (data.component === "camera") {
+        if (data.active) {
+          camera.update(data.command);
+        } else {
+          camera.stop();
+        }
+      }
+    });
+  });
+});
+
 
 // serve index
 require('./lib/routes').serveIndex(app, configServer.staticFolder);

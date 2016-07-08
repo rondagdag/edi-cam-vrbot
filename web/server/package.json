@@ -5,8 +5,11 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "edison-io": "^0.9.4",
     "express": "4.10.1",
+    "johnny-five": "^0.9.59",
     "morgan": "1.4.1",
+    "socket.io": "^1.4.8",
     "ws": "0.4.32"
   }
 }
