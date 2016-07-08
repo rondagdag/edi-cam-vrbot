@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="initial-scale=1"/>
+  <title>edi-cam</title>
+  <style type="text/css">
+    .container {
+      margin-top: 10%;
+      text-align: center;
+    }
+ #htmlTarget.hide {
+      z-index: -1;
+    }
+
+    #canvas-video {
+      width: 160px;
+      height: 120px;
+      border: 1px solid #ccc;
+    }
+  </style>
+  <script src="https://aframe.io/releases/0.2.0/aframe.min.js"></script>
+  <script src="https://rawgit.com/mayognaise/aframe-html-shader/master/dist/aframe-html-shader.min.js"></script>
+</head>
+<body>
+  <!-- Reference: https://github.com/phoboslab/jsmpeg/blob/master/stream-example.html -->
+
+  <a-scene stats vr-mode-ui>
+	<a-entity id="emojiEntity" geometry="primitive:box;width:3;height:3;depth:3;" rotation="30 60 30" 
+position="-2 2.5 -0.5" 
+material="shader:html;target:#target;transparent:true;ratio:height;fps:0.3;side:double;"></a-entity>
+
+    </a-scene>
+
+   <div id="htmlTarget" class="hide">
+      <div id="emoji"></div>
+      <div id="target">
+        <h1>HELLO<span></span></h1>
+        <span id="pre">A</span>
+      </div>
+    </div>
+
+  <div class="container" id="vid">
+    <!--
+      The canvas size specified here is the "initial" internal resolution. jsmpeg will
+      change this internal resolution to whatever the source provides. The size the
+      canvas is displayed on the website is dictated by the CSS style.
+    -->
+    <canvas id="canvas-video" width="160" height="120"></canvas>
+  </div>
+
+  <script src="/jsmpg.js"></script>
+  <script type="text/javascript">
+    // Show loading notice
+    var canvas = document.getElementById('canvas-video');
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#333';
+    ctx.fillText('Loading...', canvas.width/2-30, canvas.height/3);
+
+    // Start the player
+    var client = new WebSocket('ws://' + document.domain + ':8084');
+    var player = new jsmpeg(client, { canvas:canvas });
+  </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<html>
+	<head>
+		<script src="../lib/aframe-v0.2.0-rc1.js"></script>
+		<script src="../lib/leap-0.6.4.js"></script>
+		<script src="../lib/leap-plugins-0.1.11.js"></script>
+		<script src="../lib/leap.rigged-hand-0.1.7.js"></script>
+		<script src="../src/leap-motion-hand-grabbing.js"></script>
+		<script src="leapUtils.js"></script>
+		
+		<script>
+			window.onload = function () {
+				var controller = LeapUtils.createController();
+				controller.use("leap-motion-hand-grabbing", { leftHand: true, rightHand: true, debug: false });
+				
+				// Right hand can grab individual boxes
+				var boxes = document.querySelectorAll("a-box")
+				for(var boxIndex = 0; boxIndex < boxes.length; boxIndex++) {
+					TouchInfo.rightHand.add( boxes[boxIndex].object3D );
+				}
+				
+				// Left hand grabs all boxes at once
+				for(var boxIndex = 0; boxIndex < boxes.length; boxIndex++) {
+					TouchInfo.leftHand.add(
+						boxes[boxIndex].object3D,
+					
+						// The second parameter defines which threejs object is grabbed when the hand touches an object
+						// In this example, when the left hands grabs a box we want to grab the entire box container
+						function (mesh, box) {
+							var boxContainer = document.querySelector(".boxContainer").object3D;
+							var parent = box.parent;
+							while(parent && parent != boxContainer)
+								parent = parent.parent;
+						
+							// If we walked all the way up the tree and didn't find the heart container, grab the box
+							if(!parent)
+								return box;
+						
+							return boxContainer;
+						});
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<a-scene>
+			<a-camera position="0 1.8 0"></a-camera>
+			<a-entity class="boxContainer">
+				<a-box scale="0.1 0.1 0.1" position="-0.11 2 -1" color="green"></a-box>
+				<a-box scale="0.1 0.1 0.1" position="-0.11 1.6 -1" color="grey"></a-box>
+				<a-box scale="0.1 0.1 0.1" position="0.11 2 -1" color="red"></a-box>
+				<a-box scale="0.1 0.1 0.1" position="0.11 1.6 -1" color="blue"></a-box>
+			</a-entity>
+		</a-scene>
+	</body>
+</html>

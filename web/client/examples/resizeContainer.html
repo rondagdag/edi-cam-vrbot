@@ -1,0 +1,70 @@
+<html>
+	<head>
+		<script src="../lib/aframe-v0.2.0-rc1.js"></script>
+		<script src="../lib/leap-0.6.4.js"></script>
+		<script src="../lib/leap-plugins-0.1.11.js"></script>
+		<script src="../lib/leap.rigged-hand-0.1.7.js"></script>
+		<script src="../src/leap-motion-hand-grabbing.js"></script>
+		<script src="../src/leap-motion-hand-resizing.js"></script>
+		<script src="leapUtils.js"></script>
+		
+		<script>
+			window.onload = function () {
+				var controller = LeapUtils.createController();
+				controller.use("leap-motion-hand-grabbing", { leftHand: true, rightHand: true, debug: false });
+				controller.use("leap-motion-hand-resizing");
+				
+				// Right hand can grab individual boxes
+				var boxes = document.querySelectorAll("a-box")
+				for(var boxIndex = 0; boxIndex < boxes.length; boxIndex++) {
+					TouchInfo.rightHand.add( boxes[boxIndex].object3D,
+					
+						// If the left hand is grabbing a container that holds the object the right hand just touched, grab the container so we resize it
+						// Otherwise, if the left hand is grabbing a different object, return the box
+						function (mesh, box) {
+							if(TouchInfo.leftHand.toucherHand.isGrabbing()) {
+								var parent = box.parent;
+								while(parent && parent != TouchInfo.leftHand.toucherHand.grabbedObj)
+									parent = parent.parent;
+									
+								if(parent)
+									return TouchInfo.leftHand.toucherHand.grabbedObj;
+							}
+							
+							return box;
+						} )
+				}
+				
+				// Left hand grabs all boxes at once
+				for(var boxIndex = 0; boxIndex < boxes.length; boxIndex++) {
+					TouchInfo.leftHand.add(
+						boxes[boxIndex].object3D,
+
+						function (mesh, box) {
+							var boxContainer = document.querySelector(".boxContainer").object3D;
+							var parent = box.parent;
+							while(parent && parent != boxContainer)
+								parent = parent.parent;
+						
+							// If we walked all the way up the tree and didn't find the box container, grab the box
+							if(!parent)
+								return box;
+						
+							return boxContainer;
+						});
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<a-scene>
+			<a-camera position="0 1.8 0"></a-camera>
+			<a-entity class="boxContainer">
+				<a-box scale="0.1 0.1 0.1" position="-0.11 2 -1.2" color="green"></a-box>
+				<a-box scale="0.1 0.1 0.1" position="-0.11 1.6 -1.2" color="grey"></a-box>
+				<a-box scale="0.1 0.1 0.1" position="0.11 2 -1.2" color="red"></a-box>
+				<a-box scale="0.1 0.1 0.1" position="0.11 1.6 -1.2" color="blue"></a-box>
+			</a-entity>
+		</a-scene>
+	</body>
+</html>

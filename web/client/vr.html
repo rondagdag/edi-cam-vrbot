@@ -1,0 +1,170 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width">
+    <title>A-Frame HTML Shader - Basic</title>
+  <script src="https://aframe.io/releases/0.2.0/aframe.min.js"></script>
+  <script src="https://rawgit.com/mayognaise/aframe-html-shader/master/dist/aframe-html-shader.min.js"></script>
+
+  <script src="lib/leap-0.6.4.js"></script>
+  <script src="lib/leap-plugins-0.1.11.js"></script>
+  <script src="lib/leap.rigged-hand-0.1.7.js"></script>
+  <script src="src/leap-motion-hand-grabbing.js"></script>
+  <script src="leapUtils.js"></script>
+
+  <script>
+     window.onload = function () {
+     var controller = LeapUtils.createController();
+     controller.use("leap-motion-hand-grabbing", { leftHand: true, rightHand: true, debug: false });
+
+     // Right hand can grab the box
+     TouchInfo.rightHand.add(document.querySelector("#rightbox").object3D);
+
+     // Left hand can grab the box
+     TouchInfo.leftHand.add(document.querySelector("#leftbox").object3D);
+   }
+   
+</script>
+
+
+
+    <link rel="stylesheet" type="text/css" href="../common.css"/>
+    <style type="text/css">
+    #target {
+      width: 640px;
+      height: 512px;
+      position: absolute;
+      background: rgba(255,255,0,0.3);
+    }
+    #htmlTarget.hide {
+      z-index: -1;
+    }
+    #target h1 {
+      font-family: Arial;
+      font-size: 110px;
+      margin: 0;
+      vertical-align: top;
+      color: white;
+    }
+    #target h1 span {
+      color: tomato;
+    }
+    #emoji {
+      position: absolute;
+      font-size: 512px;
+      color: mediumTurquoise;
+      font-style: serif;
+    }
+    #pre {
+      font-family: monospace;
+      margin: 0;
+      padding: 0;
+      height: 50px;
+      font-size: 50px;
+      background: royalblue;
+      color: tomato;
+    }
+    #htmlTarget {
+      position: absolute;
+      z-index: 1;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+    #debug {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
+    @media (max-width: 512px) {
+      #target {
+        width: 256px;
+        height: 126px;
+      }
+      #target h1 {
+        font-size: 55px;
+      }
+      #pre {
+        height: 50px;
+        font-size: 25px;
+      }
+      #emoji {
+        position: absolute;
+        font-size: 256px;
+        color: mediumTurquoise;
+      }
+    }
+    body[data-vr="true"] .novr{
+      display: none;
+    }
+
+   #canvas-video {
+      width: 640px;
+      height: 480px;
+      border: 1px solid #ccc;
+    }
+
+    </style>
+  </head>
+  <body>
+    <a-scene vr-mode-ui>
+     <a-camera position="0 1.8 0"></a-camera>
+     <a-box id="rightbox" scale="0.5 0.5 0.5" position="1 1.8 -1" color="grey"></a-box>
+     <a-box id="leftbox" scale="0.5 0.5 0.5" position="-1 1.8 -1" color="grey"></a-box>
+
+      <a-entity id="videoEntity" 
+geometry="primitive:plane;width:2;height:2;" 
+rotation="-20 0 0" 
+position="0 1.8 -2" 
+material="shader:html;target:#target;transparent:true;ratio:width;fps:1.5;"></a-entity>
+     <!-- <a-entity id="videoEntity" geometry="primitive:plane;width:2;height:2;" rotation="-20 0 0" position="0 -2.5 
+2.5" 
+material="shader:html;target:#target;transparent:true;ratio:width;fps:1.5;"></a-entity>
+-->
+      <!-- sky -->
+      <a-sky src="space.jpg"></a-sky>
+      
+    </a-scene>
+
+    <div id="htmlTarget" class="hide">
+      <div id="target">
+        <h1>HELLO<span></span></h1>
+	<canvas id="canvas-video" width="640" height="480"></canvas>
+      </div>
+  <div class="container">
+    <!--
+      The canvas size specified here is the "initial" internal resolution. jsmpeg will
+      change this internal resolution to whatever the source provides. The size the
+      canvas is displayed on the website is dictated by the CSS style.
+    -->
+  </div>
+
+    </div>
+
+    <div id="debug" class="novr"></div>
+
+    <div class="buttons novr">
+      <a href="javascript:toggleVisibility()">toggle DOM visibility</a>
+      <a href="javascript:toggleLettersDebug()">toggle debug mode for letters</a>
+    </div>
+
+    <div class="spacer"></div>
+    <div class="spacer2"></div>
+
+
+  <script src="/jsmpg.js"></script>
+  <script>
+    // Show loading notice
+    var canvas = document.getElementById('canvas-video');
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#333';
+    ctx.fillText('Loading...', canvas.width/2-30, canvas.height/3);
+    // Start the player
+    var client = new WebSocket('ws://' + document.domain + ':8084');
+    var player = new jsmpeg(client, { canvas:canvas });
+  </script>
+
+
+
+  </body>
+</html>

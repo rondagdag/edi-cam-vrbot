@@ -1,0 +1,31 @@
+<html>
+	<head>
+		<script src="../lib/aframe-v0.2.0-rc1.js"></script>
+		<script src="../lib/leap-0.6.4.js"></script>
+		<script src="../lib/leap-plugins-0.1.11.js"></script>
+		<script src="../lib/leap.rigged-hand-0.1.7.js"></script>
+		<script src="../src/leap-motion-hand-grabbing.js"></script>
+		<script src="../src/leap-motion-hand-resizing.js"></script>
+		<script src="leapUtils.js"></script>
+		
+		<script>
+			window.onload = function () {
+				var controller = LeapUtils.createController();
+				controller.use("leap-motion-hand-grabbing", { leftHand: true, rightHand: true, debug: false });
+				controller.use("leap-motion-hand-resizing");
+				
+				// Right hand can grab the box
+				TouchInfo.rightHand.add( document.querySelector("a-box").object3D);
+				
+				// Left hand can grab the box
+				TouchInfo.leftHand.add( document.querySelector("a-box").object3D)
+			}
+		</script>
+	</head>
+	<body>
+		<a-scene>
+			<a-camera position="0 1.8 0"></a-camera>
+			<a-box scale="0.1 0.1 0.1" position="0 1.8 -1" color="grey"></a-box>
+		</a-scene>
+	</body>
+</html>
