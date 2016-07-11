@@ -109,8 +109,18 @@
   <body>
     <a-scene vr-mode-ui>
      <a-camera position="0 1.8 0"></a-camera>
-     <a-box id="rightbox" scale="0.5 0.5 0.5" position="1 1.8 -1" color="grey"></a-box>
-     <a-box id="leftbox" scale="0.5 0.5 0.5" position="-1 1.8 -1" color="grey"></a-box>
+     <!--<a-box id="rightbox" scale="0.5 0.5 0.5" position="1 1.8 -1" color="grey"></a-box>
+     <a-box id="leftbox" scale="0.5 0.5 0.5" position="-1 1.8 -1" color="grey"></a-box>-->
+
+     <!--<a-sphere id="rightbox" src="sunsurface.png" radius="100" color="yellow" metalness=".1"
+       light="type: point; intensity: 5" scale="1 1 1" position="1 1.8 -1"></a-sphere>-->
+
+     <a-sphere id="rightbox" radius="0.25" src="sunsurface.png" scale="0.5 0.5 0.5" position="1 1.8 -1" 
+color="grey"></a-sphere>
+
+     <!--<a-sphere id="leftbox" radius="0.5" src="sunsurface.png" scale="0.5 0.5 0.5" position="-1 1.8 -1" 
+color="grey"></a-sphere>-->
+
 
       <a-entity id="videoEntity" 
 geometry="primitive:plane;width:2;height:2;" 

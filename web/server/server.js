@@ -4,7 +4,7 @@ var childProcess = require('child_process')
   , morgan = require('morgan')
   , ws = require('ws');
 const express = require("express");
-const io = require("socket.io")(http);
+var io = require("socket.io")(http);
 
 // configuration files
 var configServer = require('./lib/config/server');
@@ -15,6 +15,10 @@ app.set('port', configServer.httpPort);
 app.use(express.static(configServer.staticFolder));
 app.use(morgan('dev'));
 
+var _require = require("johnny-five");
+var Board = _require.Board;
+var Fn = _require.Fn;
+const Edison = require("edison-io");
 const Rover = require("./lib/rover");
 const board = new Board({
   sigint: false,
@@ -25,15 +29,15 @@ const board = new Board({
 board.on("ready", function() {
 
   const rover = new Rover([
-    { dir: 6, pwm: 11 },
-    { dir: 4, pwm: 10 },
+    { dir: 8,cdir:7, pwm: 6 },
+    { dir: 4,cdir:3, pwm: 9 },
   ]);
   console.log("Rover: Initialized");
 
-  const camera = new Camera({
+  /*const camera = new Camera({
     pan: 3, tilt: 5
   });
-  console.log("Camera: Initialized");
+  console.log("Camera: Initialized");*/
 
   io.on("connection", function(socket) {
     console.log("VRBot: Connected");
@@ -43,13 +47,14 @@ board.on("ready", function() {
         rover.update(data.axis);
       }
 
-      if (data.component === "camera") {
+     /* if (data.component === "camera") {
         if (data.active) {
           camera.update(data.command);
         } else {
           camera.stop();
         }
-      }
+      }*/
+
     });
   });
 });
