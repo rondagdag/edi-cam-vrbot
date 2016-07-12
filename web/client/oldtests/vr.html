@@ -4,60 +4,34 @@
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width">
     <meta name="mobile-web-app-capable" content="yes">
     <title>EdiBot VR</title>
-    <script src="bundle.js"></script>
-    <script src="https://rawgit.com/mayognaise/aframe-html-shader/master/dist/aframe-html-shader.min.js"></script>
+  <script src="https://aframe.io/releases/0.2.0/aframe.min.js"></script>
+  <script src="https://rawgit.com/mayognaise/aframe-html-shader/master/dist/aframe-html-shader.min.js"></script>
+
+  <script src="lib/leap-0.6.4.js"></script>
+  <script src="lib/leap-plugins-0.1.11.js"></script>
+  <script src="lib/leap.rigged-hand-0.1.7.js"></script>
+  <script src="src/leap-motion-hand-grabbing.js"></script>
+  <script src="leapUtils.js"></script>
 
   <script>
-AFRAME.registerComponent('holdable', {
-  schema: {activeColor: {default: 'orange'}},
+     window.onload = function () {
+     var controller = LeapUtils.createController();
+     controller.use("leap-motion-hand-grabbing", { leftHand: true, rightHand: true, debug: false });
 
-  init: function () {
-    this.physics =    /** @type {AFRAME.System}     */ this.el.sceneEl.systems.physics;
-    this.constraint = /** @type {CANNON.Constraint} */ null;
-    this.handID =     /** @type {number} */            null;
-    this.el.addEventListener('leap-holdstart', this.onHoldStart.bind(this));
-    this.el.addEventListener('leap-holdstop', this.onHoldStop.bind(this));
-  },
+     // Right hand can grab the box
+     TouchInfo.rightHand.add(document.querySelector("#rightbox").object3D.getObjectByProperty("type", "Mesh"));
 
-  onHoldStart: function (e) {
-    console.log(this.el);
-    if (this.handID) return;
-
-    this.originalColor = this.el.getAttribute('material').color;
-    this.el.setAttribute('material', 'color', this.data.activeColor);
-    this.constraint = new CANNON.LockConstraint(this.el.body, e.detail.body);
-    this.physics.world.addConstraint(this.constraint);
-    this.handID = e.detail.handID;
-
-    var active = true;
-    var { command, component } = this.el.dataset;
-    transmit({ active, command, component });
-
-  },
-
-  onHoldStop: function (e) {
-    if (e.detail.handID !== this.handID) return;
-
-    this.el.setAttribute('material', 'color', this.originalColor);
-    this.physics.world.removeConstraint(this.constraint);
-    this.constraint = null;
-    this.handID = null;
-
-     var active = false;
-     var { command, component } = this.el.dataset;
-    if (deactivatables.indexOf(command) !== -1) {
-      transmit({ active, command, component });
-    }
-  }
-});
+     // Left hand can grab the box
+     TouchInfo.leftHand.add(document.querySelector("#leftbox").object3D.getObjectByProperty("type", "Mesh"));
+   }
    
 </script>
+
     <link rel="stylesheet" type="text/css" href="../common.css"/>
     <style type="text/css">
     #target {
       width: 645px;
-      height: 9
-      12px;
+      height: 1512px;
       position: absolute;
       background: rgba(255,255,0,0.3);
     }
@@ -107,26 +81,74 @@ AFRAME.registerComponent('holdable', {
       border: 1px solid #ccc;
     }
 
+     button {
+      border: 0px;
+      background-color: Transparent;
+      border: none;
+      cursor: pointer;
+      overflow: hidden;
+      outline: none;
+    }
+
+
+    [data-command="up"],
+    [data-command="down"],
+    [data-command="forward"],
+    [data-command="reverse"] {
+      transform: rotate(-90deg);
+    }
+
+     .controls.rover button {
+      opacity: 1;
+      font-size: 8rem;
+      color: DeepPink;
+      position: absolute;
+    }
+
+    .controls.rover button:active {
+      opacity: 1;
+      font-size: 8rem;
+      color: LightPink;
+      position: absolute;
+    }
+
+
+    .controls.rover .left {
+      left: 0px;
+      top: 700px;
+    }
+    .controls.rover .right {
+      left: 210px;
+      top: 700px;
+    }
+    .controls.rover .up {
+      left: 101px;
+      top: 600px;
+    }
+    .controls.rover .center {
+      font-size: 8rem;
+      left: 80px;
+      top: 690px;
+    }
+    .controls.rover .down {
+      left: 101px;
+      top: 805px;
+    }
+
 
     </style>
   </head>
   <body>
-    <a-scene vr-mode-ui>
-     <a-camera position="0 1.7 0" look-controls>
-        <a-entity leap-hand="hand: left; enablePhysics: true;"></a-entity>
-        <a-entity leap-hand="hand: right; enablePhysics: true;"></a-entity>
-     </a-camera>
+    <a-scene vr-mode-ui look-controls>
+     <a-camera position="0 1.8 0"></a-camera>
      <!--<a-box id="rightbox" scale="0.5 0.5 0.5" position="1 1.8 -1" color="grey"></a-box>-->
-     <!--<a-box id="leftbox" scale="0.5 0.5 0.5" position="-0.75 1.8 -0.5" color="grey" holdable dynamic-body="shape: box"></a-box>-->
+     <a-box id="leftbox" scale="0.5 0.5 0.5" position="-1 1.8 -1" color="grey"></a-box>
 
      <!--<a-sphere id="rightbox" src="sunsurface.png" radius="100" color="yellow" metalness=".1"
        light="type: point; intensity: 5" scale="1 1 1" position="1 1.8 -1"></a-sphere>-->
 
-      <a-sphere id="leftsun" radius="0.35" src="sunsurface.png" scale="0.5 0.5 0.5" position="-0.25 1.6 -0.5" 
-color="grey" holdable dynamic-body="shape: sphere" data-component="rover" data-command="left"></a-sphere>
-
-     <a-sphere id="rightsun" radius="0.35" src="sunsurface.png" scale="0.5 0.5 0.5" position="0.25 1.6 -0.5" 
-color="grey" holdable dynamic-body="shape: sphere" data-component="rover" data-command="right"></a-sphere>
+     <a-sphere id="rightbox" radius="0.25" src="sunsurface.png" scale="0.5 0.5 0.5" position="1 1.8 -1" 
+color="grey"></a-sphere>
 
      <!--<a-sphere id="leftbox" radius="0.5" src="sunsurface.png" scale="0.5 0.5 0.5" position="-1 1.8 -1" 
 color="grey"></a-sphere>-->
@@ -230,7 +252,6 @@ material="shader:html;target:#target;transparent:true;ratio:width;fps:1.5;"></a-
       };
 
       function transmit(data) {
-        console.log(data);
         socket.emit("remote-control", data);
       }
 
@@ -395,7 +416,7 @@ material="shader:html;target:#target;transparent:true;ratio:width;fps:1.5;"></a-
 */
 
   </script>
- 
+
 
   </body>
 </html>

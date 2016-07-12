@@ -15,6 +15,21 @@ app.set('port', configServer.httpPort);
 app.use(express.static(configServer.staticFolder));
 app.use(morgan('dev'));
 
+/*
+// serve index
+require('./lib/routes').serveIndex(app, configServer.staticFolder);
+
+// HTTP server
+http.createServer(app).listen(app.get('port'), function () {
+  console.log('HTTP server listening on port ' + app.get('port'));
+});*/
+
+// HTTP server
+var newHttpServer = http.createServer(app);
+
+//var io = require("socket.io")(configServer.roverPort);
+var io = require("socket.io")(newHttpServer);
+
 var _require = require("johnny-five");
 var Board = _require.Board;
 var Fn = _require.Fn;
@@ -59,14 +74,11 @@ board.on("ready", function() {
   });
 });
 
-
-// serve index
-require('./lib/routes').serveIndex(app, configServer.staticFolder);
-
-// HTTP server
-http.createServer(app).listen(app.get('port'), function () {
+newHttpServer.listen(app.get('port'), function () {
   console.log('HTTP server listening on port ' + app.get('port'));
+
 });
+
 
 /// Video streaming section
 // Reference: https://github.com/phoboslab/jsmpeg/blob/master/stream-server.js

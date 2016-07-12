@@ -1,4 +1,159 @@
+"use strict";
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var _require = require("johnny-five");
+
+var Board = _require.Board;
+var Fn = _require.Fn;
+
+var Motor = _require.Motor;
+var Motors = _require.Motors;
+var RAD_TO_DEG = Fn.RAD_TO_DEG;
+var constrain = Fn.constrain;
+var scale = Fn.scale;
+
+var priv = new WeakMap();
+
+var SPEED_MIN = 50;
+var SPEED_MAX = 200;
+
+var Rover = function () {
+  function Rover(pinDefs) {
+    _classCallCheck(this, Rover);
+
+    this.update("center");
+
+        var pins = [{ pins: pinDefs[0], invertPWM: true }, { pins: pinDefs[1], invertPWM: true }];
+
+    pins[0].threshold = pins[0].threshold || 0;
+    pins[1].threshold = pins[1].threshold || 0;
+
+    console.log(pins);
+  }
+
+  _createClass(Rover, [{
+    key: "update",
+    value: function update(direction) {
+      var ms = 500;
+      var axis = { x = 0, y = 0 };
+      if (direction === "left") {
+        //this.pan.to(PAN_MIN, ms);
+        x = -10;
+      }
+
+      if (direction === "right") {
+        //this.pan.to(PAN_MAX, ms);
+        y = 10;
+      }
+
+      if (direction === "up") {
+        //this.tilt.to(TILT_MIN, ms);
+      }
+
+      if (direction === "down") {
+        //this.tilt.to(TILT_MAX, ms);
+      }
+
+      if (direction === "center") {
+        this.stop();
+        //this.tilt.to(TILT_CENTER);
+        //this.pan.to(PAN_CENTER);
+      }
+
+
+      var x = axis.x;
+      var y = axis.y;
+
+      // See drive.md
+      //
+      // Compute angle of joystick
+
+      var angle = Math.acos(Math.abs(x) / Math.hypot(x, y)) * RAD_TO_DEG;
+
+      // Compute "turn coefficient"
+      var coeff = -1 + angle / 90 * 2;
+      var turn = coeff * Math.abs(Math.abs(y) - Math.abs(x));
+
+      turn = Math.round(turn * 100) / 100;
+
+      var move = Math.max(Math.abs(y), Math.abs(x));
+      var direction = {
+        left: "forward",
+        right: "forward"
+      };
+
+      var speed = {
+        left: 0,
+        right: 0
+      };
+
+      // Determine quadrant...
+      if (x >= 0 && y >= 0 || x < 0 && y < 0) {
+        speed.left = move;
+        speed.right = turn;
+      } else {
+        speed.right = move;
+        speed.left = turn;
+      }
+
+      // Invert when reversing...
+      if (y < 0) {
+        speed.left *= -1;
+        speed.right *= -1;
+        // TODO: Can we flip these here? For Reverse-And-Turn?
+      }
+
+      speed.left = Math.round(Number.isNaN(speed.left) ? 0 : speed.left);
+      speed.right = Math.round(Number.isNaN(speed.right) ? 0 : speed.right);
+
+      if (speed.left < 0) {
+        direction.left = "reverse";
+        speed.left *= -1;
+      }
+
+      if (speed.right < 0) {
+        direction.right = "reverse";
+        speed.right *= -1;
+      }
+
+      if (speed.left === 0 && speed.right === 0) {
+        this.stop();
+      } else {
+        var left = scale(speed.left, 0, 100, SPEED_MIN, SPEED_MAX);
+        var right = scale(speed.right, 0, 100, SPEED_MIN, SPEED_MAX);
+
+        this.left[direction.left](left);
+        this.right[direction.right](right);
+      }
+
+      return this;
+    }
+  }, {
+    key: "stop",
+    value: function stop() {
+      priv.get(this).stop();
+    }
+  }
+  /*, {
+    key: "pan",
+    get: function get() {
+      return priv.get(this)[0];
+    }
+  }, {
+    key: "tilt",
+    get: function get() {
+      return priv.get(this)[1];
+    }
+  }*/]);
+
+  return Rover;
+}();
+
+module.exports = Rover;
+/*
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; 
@@ -132,4 +287,4 @@ var Rover = function () {
   return Rover;
 }();
 
-module.exports = Rover;
+module.exports = Rover;*/

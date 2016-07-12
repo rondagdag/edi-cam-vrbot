@@ -4,7 +4,6 @@ var childProcess = require('child_process')
   , morgan = require('morgan')
   , ws = require('ws');
 const express = require("express");
-var io = require("socket.io")(http);
 
 // configuration files
 var configServer = require('./lib/config/server');
@@ -14,35 +13,40 @@ var app = express();
 app.set('port', configServer.httpPort);
 app.use(express.static(configServer.staticFolder));
 app.use(morgan('dev'));
-const Rover = require("./lib/rover");
+
+// serve index
+require('./lib/routes').serveIndex(app, configServer.staticFolder);
 
 
-  const rover = new Rover([
+// HTTP server
+var newHttpServer = http.createServer(app);
+
+//var io = require("socket.io")(configServer.roverPort);
+var io = require("socket.io")(newHttpServer);
+//const Rover = require("./lib/rover");
+
+  /*const rover = new Rover([
     { dir: 8,cdir:7, pwm: 6 },
     { dir: 4,cdir:3, pwm: 9 },
   ]);
-  console.log("Rover: Initialized");
+  console.log("Rover: Initialized");*/
 
   io.on("connection", function(socket) {
     console.log("VRBot: Connected");
 
     socket.on("remote-control", function(data) {
       if (data.component === "rover") {
-        rover.update(data.axis);
+        console.log('Data Received');
+        console.log(data);
+        //rover.update(data.axis);
       }
 
     });
   });
 
 
-// serve index
-require('./lib/routes').serveIndex(app, configServer.staticFolder);
-
-// HTTP server
-http.createServer(app).listen(app.get('port'), function () {
+newHttpServer.listen(app.get('port'), function () {
   console.log('HTTP server listening on port ' + app.get('port'));
-
-
 
 });
 
