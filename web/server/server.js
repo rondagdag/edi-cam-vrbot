@@ -59,7 +59,7 @@ board.on("ready", function() {
 
     socket.on("remote-control", function(data) {
       if (data.component === "rover") {
-        rover.update(data.axis);
+        rover.update(data.command);
       }
 
      /* if (data.component === "camera") {

@@ -23,30 +23,36 @@ var SPEED_MAX = 200;
 var Rover = function () {
   function Rover(pinDefs) {
     _classCallCheck(this, Rover);
+   console.log(pinDefs);
+    //this.update("center");
 
-    this.update("center");
-
-        var pins = [{ pins: pinDefs[0], invertPWM: true }, { pins: pinDefs[1], invertPWM: true }];
+    var pins = [{ pins: pinDefs[0], invertPWM: false }, { pins: pinDefs[1], invertPWM: false 
+}];
 
     pins[0].threshold = pins[0].threshold || 0;
     pins[1].threshold = pins[1].threshold || 0;
 
-    console.log(pins);
+    console.log(pinDefs);
+	priv.set(this, new Motors(pins));
+	this.stop();
   }
 
   _createClass(Rover, [{
     key: "update",
     value: function update(direction) {
+	console.log(direction);
+
+console.log('direction update');
       var ms = 500;
-      var axis = { x = 0, y = 0 };
+      var axis = { x : 0, y : 0 };
       if (direction === "left") {
         //this.pan.to(PAN_MIN, ms);
-        x = -10;
+        axis.x = -100;
       }
 
       if (direction === "right") {
         //this.pan.to(PAN_MAX, ms);
-        y = 10;
+        axis.y = 100;
       }
 
       if (direction === "up") {
@@ -58,7 +64,7 @@ var Rover = function () {
       }
 
       if (direction === "center") {
-        this.stop();
+        //this.stop();
         //this.tilt.to(TILT_CENTER);
         //this.pan.to(PAN_CENTER);
       }
@@ -136,18 +142,17 @@ var Rover = function () {
     value: function stop() {
       priv.get(this).stop();
     }
-  }
-  /*, {
-    key: "pan",
+  }, {
+    key: "left",
     get: function get() {
       return priv.get(this)[0];
     }
   }, {
-    key: "tilt",
+    key: "right",
     get: function get() {
       return priv.get(this)[1];
     }
-  }*/]);
+  }]);
 
   return Rover;
 }();
@@ -191,9 +196,9 @@ var Rover = function () {
     pins[1].threshold = pins[1].threshold || 0;
 
     console.log(pins);
-    //priv.set(this, new Motors(pins));
+    priv.set(this, new Motors(pins));
 
-    //this.stop();
+    this.stop();
   }
 
   _createClass(Rover, [{
