@@ -5,11 +5,26 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "aframe": "^0.2.0",
+    "aframe-leap-hands": "git+https://github.com/openleap/aframe-leap-hands.git",
     "edison-io": "^0.9.4",
     "express": "4.10.1",
     "johnny-five": "^0.9.59",
     "morgan": "1.4.1",
     "socket.io": "^1.4.8",
-    "ws": "0.4.32"
+    "ws": "0.4.32",
+     "browserify": "~2.36.1"
+  },
+  "devDependencies": {
+    "watchify": "~0.4.1",
+    "catw": "~0.2.0"
+  },
+  "scripts": {
+    "watch-css": "catw -c 'lessc -' 'style/*.less' -o ../client/bundle.css -v",
+    "watch-js": "watchify browser/*.js -o ../client/bundle.js -dv",
+    "watch": "npm run watch-css & npm run watch-js",
+    "build-css": "catw -c 'lessc -' 'style/*.less' > ../client/bundle.css",
+    "build-js": "browserify browser/main.js > ../client/bundle.js",
+    "build": "npm run build-css && npm run build-js"
   }
 }

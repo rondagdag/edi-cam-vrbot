@@ -1,0 +1,65 @@
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,user-scalable=no,maximum-scale=1">
+    <title>Examples • Grabbing</title>
+    <script src="../bundle.js"></script>
+    <script>
+AFRAME.registerComponent('holdable', {
+  schema: {activeColor: {default: 'orange'}},
+
+  init: function () {
+    this.physics =    /** @type {AFRAME.System}     */ this.el.sceneEl.systems.physics;
+    this.constraint = /** @type {CANNON.Constraint} */ null;
+    this.handID =     /** @type {number} */            null;
+    this.el.addEventListener('leap-holdstart', this.onHoldStart.bind(this));
+    this.el.addEventListener('leap-holdstop', this.onHoldStop.bind(this));
+  },
+
+  onHoldStart: function (e) {
+    if (this.handID) return;
+
+    this.originalColor = this.el.getAttribute('material').color;
+    this.el.setAttribute('material', 'color', this.data.activeColor);
+    this.constraint = new CANNON.LockConstraint(this.el.body, e.detail.body);
+    this.physics.world.addConstraint(this.constraint);
+    this.handID = e.detail.handID;
+  },
+
+  onHoldStop: function (e) {
+    if (e.detail.handID !== this.handID) return;
+
+    this.el.setAttribute('material', 'color', this.originalColor);
+    this.physics.world.removeConstraint(this.constraint);
+    this.constraint = null;
+    this.handID = null;
+  }
+});
+    </script>
+  </head>
+  <body>
+    <a-scene>
+      <!-- Player -->
+      <a-entity camera="near: 0.01" position="0 0 0" look-controls>
+        <a-entity leap-hand="hand: left; enablePhysics: true;"></a-entity>
+        <a-entity leap-hand="hand: right; enablePhysics: true;"></a-entity>
+      </a-entity>
+
+      <a-box width="0.25" height="0.25" depth="0.25" position="-0.125 0.13 -0.5" color="red"
+             holdable dynamic-body="shape: box"></a-box>
+      <a-box width="0.25" height="0.25" depth="0.25" position="0.00 0.4 -0.5" color="green"
+             holdable dynamic-body="shape: box"></a-box>
+      <a-box width="0.25" height="0.25" depth="0.25" position="0.125 0.13 -0.5" color="blue"
+             holdable dynamic-body="shape: box"></a-box>
+
+      <!-- Terrain -->
+      <a-grid static-body></a-grid>
+
+      <!-- Lighting -->
+      <a-light type="ambient" color="#ccc"></a-light>
+      <a-light color="#ddf" distance="100" intensity="0.4" type="point"></a-light>
+      <a-light color="#ddf" position="3 10 -10" distance="50" intensity="0.4" type="point"></a-light>
+    </a-scene>
+  </body>
+</html>
