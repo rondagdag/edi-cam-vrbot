@@ -59,7 +59,11 @@ board.on("ready", function() {
 
     socket.on("remote-control", function(data) {
       if (data.component === "rover") {
-        rover.update(data.command);
+        if (data.active) {
+          rover.update(data.command);
+        } else {
+          rover.stop();
+        }
       }
 
      /* if (data.component === "camera") {

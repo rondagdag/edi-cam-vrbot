@@ -45,28 +45,27 @@ var Rover = function () {
 console.log('direction update');
       var ms = 500;
       var axis = { x : 0, y : 0 };
+  
       if (direction === "left") {
-        //this.pan.to(PAN_MIN, ms);
         axis.x = -100;
+        axis.y = 100;
       }
 
       if (direction === "right") {
-        //this.pan.to(PAN_MAX, ms);
+        axis.x = 100;
         axis.y = 100;
       }
 
       if (direction === "up") {
-        //this.tilt.to(TILT_MIN, ms);
+        axis.y = 100;
       }
 
       if (direction === "down") {
-        //this.tilt.to(TILT_MAX, ms);
+        axis.y = -100;
       }
 
       if (direction === "center") {
-        //this.stop();
-        //this.tilt.to(TILT_CENTER);
-        //this.pan.to(PAN_CENTER);
+        this.stop();
       }
 
 
