@@ -114,6 +114,7 @@ If the download doesn't work, the release link may have changed. Check [here](ht
 
 * Navigate to `web/server`.
 * Install the Node.js packages by typing `npm install`.
+* Also make sure you have browserify installed and run `browserify browser.js > ../client/bundle.js`.
 
 ### Running the demo
 
