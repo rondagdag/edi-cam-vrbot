@@ -112,16 +112,16 @@ AFRAME.registerComponent('holdable', {
   </head>
   <body>
     <a-scene vr-mode-ui>
-    <a-entity position="0 2.7 0.5"  wasd-controls>
+    <a-entity position="0 1.4 0.5"  wasd-controls>
       <a-entity camera look-controls="enabled: true">
-        <a-entity cursor="fuse: true; maxDistance: 5000; timeout: 3000"
+        <a-entity cursor="fuse: true; maxDistance: 300; timeout: 1500"
               position="0 0 -3.4"
               geometry="primitive: ring; radiusOuter: 0.10; radiusInner:0.05;"
               material="color: white; shader: flat">
-              <a-animation begin="click" easing="ease-in" attribute="scale"
+              <!--<a-animation begin="click" easing="ease-in" attribute="scale"
                 fill="backwards" from="0.1 0.1 0.1" to="1 1 1"></a-animation>
               <a-animation begin="fusing" easing="ease-in" attribute="scale"
-                fill="forwards" from="1 1 1" to="0.1 0.1 0.1"></a-animation>
+                fill="forwards" from="1 1 1" to="0.1 0.1 0.1"></a-animation>-->
         </a-entity>
         <a-entity leap-hand="hand: left; enablePhysics: true;"></a-entity>
         <a-entity leap-hand="hand: right; enablePhysics: true;"></a-entity>
@@ -136,21 +136,27 @@ AFRAME.registerComponent('holdable', {
        light="type: point; intensity: 5" scale="1 1 1" position="1 1.8 -1"></a-sphere>-->
 
 <a-entity rotation="-30 0 0">
-      <a-sphere id="leftsun" radius="0.35" src="sunsurface.png" scale="0.5 0.5 0.5" position="-0.25 1.6 -0.5" 
-color="grey" holdable dynamic-body="shape: sphere" data-component="rover" data-command="left" enablePhysics></a-sphere>
-
-      <a-sphere id="rightsun" radius="0.35" src="sunsurface.png" scale="0.5 0.5 0.5" position="0.25 1.6 -0.5" 
+      <a-sphere id="leftsun" class="controls rover" radius="0.35" src="sunsurface.png" scale="0.5 0.5 0.5" 
+position="-0.25 1.6 -0.5" 
 color="grey" holdable dynamic-body="shape: sphere" data-component="rover" data-command="right" enablePhysics></a-sphere>
 
+      <a-sphere id="rightsun" class="controls rover" radius="0.35" src="sunsurface.png" scale="0.5 0.5 0.5" 
+position="0.25 1.6 -0.5" 
+color="grey" holdable dynamic-body="shape: sphere" data-component="rover" data-command="left" enablePhysics></a-sphere>
 
-      <a-entity id="forward" position="0 1.8 -0.5" >
-                <a-plane position="-0.07 0 0" rotation="0 0 -45" width="0.10" height="0.28" color="#0e6157"></a-plane>
-                <a-plane position="0.07 0 0" rotation="0 0 45" width="0.10" height="0.28" color="#0e6157"></a-plane>
+
+      <a-entity id="up" position="0 1.8 -0.5">
+                <a-plane position="-0.07 0 0" rotation="0 0 -45" width="0.10" height="0.28" color="#0e6157"
+class="controls rover" data-component="rover" data-command="up" holdable></a-plane>
+                <a-plane position="0.07 0 0" rotation="0 0 45" width="0.10" height="0.28" color="#0e6157"
+class="controls rover" data-component="rover" data-command="up" holdable></a-plane>
       </a-entity>
 
-      <a-entity id="backward" position="0 1.4 -0.5" visible=" true ">
-                <a-plane position="-0.07 0 0" rotation="0 0 45" width="0.10" height="0.28" color="#0e6157"></a-plane>
-                <a-plane position="0.07 0 0" rotation="0 0 -45" width="0.10" height="0.28" color="#0e6157"></a-plane>
+      <a-entity id="down" position="0 1.4 -0.5">
+                <a-plane position="-0.07 0 0" rotation="0 0 45" width="0.10" height="0.28" color="#0e6157"
+class="controls rover" data-component="rover" data-command="down" holdable></a-plane>
+                <a-plane position="0.07 0 0" rotation="0 0 -45" width="0.10" height="0.28" color="#0e6157"
+class="controls rover" data-component="rover" data-command="down" holdable></a-plane>
       </a-entity>
 </a-entity>
      <!--<a-sphere id="leftbox" radius="0.5" src="sunsurface.png" scale="0.5 0.5 0.5" position="-1 1.8 -1" 
@@ -222,7 +228,7 @@ material="shader:html;target:#target;transparent:true;ratio:width;fps:1.5;"></a-
   </script>
   <script type="text/javascript">
 
-  var spheres = document.querySelectorAll("a-sphere");
+  var spheres = document.querySelectorAll(".controls.rover");
 
   Array.from(spheres).forEach(sphere => {
       sphere.isDown = false;
@@ -241,6 +247,13 @@ material="shader:html;target:#target;transparent:true;ratio:width;fps:1.5;"></a-
         sphere.isDown = false;
       });
     });
+
+      var socket = io();
+
+      function transmit(data) {
+        console.log(data);
+        socket.emit("remote-control", data);
+      }
 
      /* // const things...
       var MIN_GUTTER_WIDTH = 50;
@@ -274,10 +287,6 @@ material="shader:html;target:#target;transparent:true;ratio:width;fps:1.5;"></a-
         rover: document.querySelector(".controls.rover"),
       };*/
 
-      function transmit(data) {
-        console.log(data);
-        socket.emit("remote-control", data);
-      }
 
      /* rover.transmit = function() {
         var now = Date.now();

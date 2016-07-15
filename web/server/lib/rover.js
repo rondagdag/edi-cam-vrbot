@@ -48,20 +48,20 @@ console.log('direction update');
   
       if (direction === "left") {
         axis.x = -100;
-        axis.y = 100;
+        axis.y = 150;
       }
 
       if (direction === "right") {
         axis.x = 100;
-        axis.y = 100;
+        axis.y = 150;
       }
 
       if (direction === "up") {
-        axis.y = 100;
+        axis.y = 150;
       }
 
       if (direction === "down") {
-        axis.y = -100;
+        axis.y = -150;
       }
 
       if (direction === "center") {
