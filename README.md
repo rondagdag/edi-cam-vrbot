@@ -1,6 +1,10 @@
-# edi-cam
+# edi-cam-vrbot
 
-edi-cam demonstrates live video streaming on Intel Edison using Node.js and WebSockets. Audio is not supported at the moment. See the demo in action [here](http://youtu.be/nVDL2-bFT3Y).
+Watch Video here
+https://youtu.be/3o_jZ4jiiY0
+
+Read more about the project here
+https://www.hackster.io/RONDAGDAG/control-your-earth-rover-in-virtual-reality-15a9fe
 
 The Node.js server is responsible for:
 
@@ -8,7 +12,7 @@ The Node.js server is responsible for:
 * Broadcasting the video stream via WebSockets to all connected browsers.
 * Serving `web/client/index.html`, which renders the video stream onto a canvas element. [jsmpeg](https://github.com/phoboslab/jsmpeg), a JavaScript MPEG1 decoder, is used to decode the video stream.
 
-This project was inspired by [phoboslab](http://phoboslab.org/log/2013/09/html5-live-video-streaming-via-websockets).
+This project was inspired by [drejkim](https://github.com/drejkim/edi-cam) and [bocoup] (https://github.com/bocoup/reconbot).
 
 ## Setup
 
@@ -110,6 +114,7 @@ If the download doesn't work, the release link may have changed. Check [here](ht
 
 * Navigate to `web/server`.
 * Install the Node.js packages by typing `npm install`.
+* Also make sure you have browserify installed and run `browserify browser.js > ../client/bundle.js`.
 
 ### Running the demo
 
@@ -128,3 +133,5 @@ The Node.js server should now be running. The console will look something like t
 #### Viewing the video stream
 
 Open a browser window and navigate to `http://myedison.local:8080`, where `myedison` is the name of your Edison. You should now see the video stream from your webcam!
+
+

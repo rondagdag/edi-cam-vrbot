@@ -1,64 +1,238 @@
-<!DOCTYPE html>
 <html>
-<head>
-  <meta name="viewport" content="initial-scale=1"/>
-  <title>edi-cam</title>
-  <style type="text/css">
-    .container {
-      margin-top: 10%;
-      text-align: center;
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>EdiBot VR</title>
+    <script src="bundle.js"></script>
+    <script src="https://rawgit.com/mayognaise/aframe-html-shader/master/dist/aframe-html-shader.min.js"></script>
+
+  <script>
+AFRAME.registerComponent('holdable', {
+  schema: {activeColor: {default: 'orange'}},
+
+  init: function () {
+    this.physics =    /** @type {AFRAME.System}     */ this.el.sceneEl.systems.physics;
+    this.constraint = /** @type {CANNON.Constraint} */ null;
+    this.handID =     /** @type {number} */            null;
+    this.el.addEventListener('leap-holdstart', this.onHoldStart.bind(this));
+    this.el.addEventListener('leap-holdstop', this.onHoldStop.bind(this));
+  },
+
+  onHoldStart: function (e) {
+    console.log(this.el);
+    if (this.handID) return;
+
+    this.originalColor = this.el.getAttribute('material').color;
+    this.el.setAttribute('material', 'color', this.data.activeColor);
+    this.constraint = new CANNON.LockConstraint(this.el.body, e.detail.body);
+    this.physics.world.addConstraint(this.constraint);
+    this.handID = e.detail.handID;
+
+    var active = true;
+    var { command, component } = this.el.dataset;
+    transmit({ active, command, component });
+
+  },
+
+  onHoldStop: function (e) {
+    if (e.detail.handID !== this.handID) return;
+
+    this.el.setAttribute('material', 'color', this.originalColor);
+    this.physics.world.removeConstraint(this.constraint);
+    this.constraint = null;
+    this.handID = null;
+
+     var active = false;
+     var { command, component } = this.el.dataset;
+     //if (deactivatables.indexOf(command) !== -1) {
+      transmit({ active, command, component });
+    //}
+  }
+});
+   
+</script>
+    <link rel="stylesheet" type="text/css" href="../common.css"/>
+    <style type="text/css">
+    #target {
+      width: 655px;
+      height: 9
+      12px;
+      position: absolute;
+      background: rgba(255,255,0,0.2);
     }
- #htmlTarget.hide {
+    #htmlTarget.hide {
       z-index: -1;
     }
+    #target h1 {
+      font-family: Arial;
+      font-size: 110px;
+      margin: 0;
+      vertical-align: top;
+      color: white;
+    }
+    #target h1 span {
+      color: tomato;
+    }
+ 
+    #htmlTarget {
+      position: absolute;
+      z-index: 1;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+    #debug {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
+    @media (max-width: 512px) {
+      #target {
+        width: 256px;
+        height: 126px;
+      }
+      #target h1 {
+        font-size: 55px;
+      }
+    }
+    body[data-vr="true"] .novr{
+      display: none;
+    }
 
-    #canvas-video {
-      width: 160px;
-      height: 120px;
+   #canvas-video {
+      width: 640px;
+      height: 480px;
       border: 1px solid #ccc;
     }
-  </style>
-  <script src="https://aframe.io/releases/0.2.0/aframe.min.js"></script>
-  <script src="https://rawgit.com/mayognaise/aframe-html-shader/master/dist/aframe-html-shader.min.js"></script>
-</head>
-<body>
-  <!-- Reference: https://github.com/phoboslab/jsmpeg/blob/master/stream-example.html -->
 
-  <a-scene stats vr-mode-ui>
-	<a-entity id="emojiEntity" geometry="primitive:box;width:3;height:3;depth:3;" rotation="30 60 30" 
-position="-2 2.5 -0.5" 
-material="shader:html;target:#target;transparent:true;ratio:height;fps:0.3;side:double;"></a-entity>
 
+    </style>
+  </head>
+  <body>
+    <a-scene vr-mode-ui>
+    <a-entity position="0 1.4 0.5"  wasd-controls>
+      <a-entity camera look-controls="enabled: true">
+        <a-entity cursor="fuse: true; maxDistance: 300; timeout: 1500"
+              position="0 0 -3.4"
+              geometry="primitive: ring; radiusOuter: 0.10; radiusInner:0.05;"
+              material="color: white; shader: flat">
+              <!--<a-animation begin="click" easing="ease-in" attribute="scale"
+                fill="backwards" from="0.1 0.1 0.1" to="1 1 1"></a-animation>
+              <a-animation begin="fusing" easing="ease-in" attribute="scale"
+                fill="forwards" from="1 1 1" to="0.1 0.1 0.1"></a-animation>-->
+        </a-entity>
+        <a-entity leap-hand="hand: left; enablePhysics: true;"></a-entity>
+        <a-entity leap-hand="hand: right; enablePhysics: true;"></a-entity>
+      </a-entity> 
+    </a-entity>
+
+<a-entity rotation="-30 0 0">
+      <a-sphere id="leftsun" class="controls rover" radius="0.35" src="sunsurface.png" scale="0.5 0.5 0.5" 
+position="-0.25 1.6 -0.5" 
+color="grey" holdable dynamic-body="shape: sphere" data-component="rover" data-command="right" enablePhysics></a-sphere>
+
+      <a-sphere id="rightsun" class="controls rover" radius="0.35" src="sunsurface.png" scale="0.5 0.5 0.5" 
+position="0.25 1.6 -0.5" 
+color="grey" holdable dynamic-body="shape: sphere" data-component="rover" data-command="left" enablePhysics></a-sphere>
+
+
+      <a-entity id="up" position="0 1.8 -0.5">
+                <a-plane position="-0.07 0 0" rotation="0 0 -45" width="0.10" height="0.28" color="#0e6157"
+class="controls rover" data-component="rover" data-command="up" holdable></a-plane>
+                <a-plane position="0.07 0 0" rotation="0 0 45" width="0.10" height="0.28" color="#0e6157"
+class="controls rover" data-component="rover" data-command="up" holdable></a-plane>
+      </a-entity>
+
+      <a-entity id="down" position="0 1.4 -0.5">
+                <a-plane position="-0.07 0 0" rotation="0 0 45" width="0.10" height="0.28" color="#0e6157"
+class="controls rover" data-component="rover" data-command="down" holdable></a-plane>
+                <a-plane position="0.07 0 0" rotation="0 0 -45" width="0.10" height="0.28" color="#0e6157"
+class="controls rover" data-component="rover" data-command="down" holdable></a-plane>
+      </a-entity>
+</a-entity>
+
+
+      <a-entity id="videoEntity" 
+geometry="primitive:plane;width:2;height:2;" 
+rotation="-30 0 0" 
+position="0 1.8 -2" 
+material="shader:html;target:#target;transparent:true;ratio:width;fps:1.5;"></a-entity>
+     
+      <!-- sky -->
+      <a-sky src="space.jpg"></a-sky>
+      
     </a-scene>
 
-   <div id="htmlTarget" class="hide">
-      <div id="emoji"></div>
+    <div id="htmlTarget" class="hide">
       <div id="target">
-        <h1>HELLO<span></span></h1>
-        <span id="pre">A</span>
+        <h1>Hello World!</h1>
+	      <canvas id="canvas-video" width="640" height="480"></canvas>
       </div>
-    </div>
-
-  <div class="container" id="vid">
+  <div class="container">
     <!--
       The canvas size specified here is the "initial" internal resolution. jsmpeg will
       change this internal resolution to whatever the source provides. The size the
       canvas is displayed on the website is dictated by the CSS style.
     -->
-    <canvas id="canvas-video" width="160" height="120"></canvas>
   </div>
 
+    </div>
+
+    <div id="debug" class="novr"></div>
+
+    <div class="buttons novr">
+      <a href="javascript:toggleVisibility()">toggle DOM visibility</a>
+      <a href="javascript:toggleLettersDebug()">toggle debug mode for letters</a>
+    </div>
+
+    <div class="spacer"></div>
+    <div class="spacer2"></div>
+
+
   <script src="/jsmpg.js"></script>
-  <script type="text/javascript">
+  <script>
     // Show loading notice
     var canvas = document.getElementById('canvas-video');
     var ctx = canvas.getContext('2d');
     ctx.fillStyle = '#333';
     ctx.fillText('Loading...', canvas.width/2-30, canvas.height/3);
-
     // Start the player
     var client = new WebSocket('ws://' + document.domain + ':8084');
     var player = new jsmpeg(client, { canvas:canvas });
   </script>
-</body>
+  <script type="text/javascript">
+
+  var spheres = document.querySelectorAll(".controls.rover");
+
+  Array.from(spheres).forEach(sphere => {
+      sphere.isDown = false;
+      sphere.addEventListener("mousedown", event => {
+        var active = true;
+        var { command, component } = event.target.dataset;
+        transmit({ active, command, component });
+        sphere.isDown = true;
+      });
+      sphere.addEventListener("mouseup", event => {
+        var active = false;
+        var { command, component } = event.target.dataset;
+        //if (deactivatables.indexOf(command) !== -1) {
+          transmit({ active, command, component });
+        //}
+        sphere.isDown = false;
+      });
+    });
+
+      var socket = io();
+
+      function transmit(data) {
+        console.log(data);
+        socket.emit("remote-control", data);
+      }
+
+
+  </script>
+ 
+
+  </body>
 </html>
