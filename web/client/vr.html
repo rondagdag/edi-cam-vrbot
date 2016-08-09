@@ -114,7 +114,9 @@ AFRAME.registerComponent('holdable', {
     <a-scene vr-mode-ui>
     <a-entity position="0 1.4 0.5"  wasd-controls>
       <a-entity camera look-controls="enabled: true">
-        <a-entity cursor="fuse: true; maxDistance: 300; timeout: 1500"
+
+        <a-entity 
+		cursor="fuse: true; maxDistance: 300; timeout: 1500"
               position="0 0 -3.4"
               geometry="primitive: ring; radiusOuter: 0.10; radiusInner:0.05;"
               material="color: white; shader: flat">
@@ -230,9 +232,17 @@ material="shader:html;target:#target;transparent:true;ratio:width;fps:1.5;"></a-
 
   var spheres = document.querySelectorAll(".controls.rover");
 
+  var active = true;
+
   Array.from(spheres).forEach(sphere => {
       sphere.isDown = false;
-      sphere.addEventListener("mousedown", event => {
+      sphere.addEventListener("click", event => {
+        var { command, component } = event.target.dataset;
+	active = !active;
+        transmit({ active, command, component });
+        sphere.isDown = !sphere.isDown;
+      });
+      /*sphere.addEventListener("mousedown", event => {
         var active = true;
         var { command, component } = event.target.dataset;
         transmit({ active, command, component });
@@ -245,7 +255,7 @@ material="shader:html;target:#target;transparent:true;ratio:width;fps:1.5;"></a-
           transmit({ active, command, component });
         //}
         sphere.isDown = false;
-      });
+      });*/
     });
 
       var socket = io();
