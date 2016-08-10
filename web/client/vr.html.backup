@@ -5,7 +5,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <title>EdiBot VR</title>
     <script src="bundle.js"></script>
-    <!--<script src="https://rawgit.com/mayognaise/aframe-html-shader/master/dist/aframe-html-shader.min.js"></script>-->
+    <script src="https://rawgit.com/mayognaise/aframe-html-shader/master/dist/aframe-html-shader.min.js"></script>
 
   <script>
 AFRAME.registerComponent('holdable', {
@@ -116,7 +116,7 @@ AFRAME.registerComponent('holdable', {
       <a-entity camera look-controls="enabled: true">
 
         <a-entity 
-		cursor="fuse: true; maxDistance: 250; timeout: 500"
+		cursor="fuse: true; maxDistance: 250; timeout: 1500"
               position="0 0 -3.4"
               geometry="primitive: ring; radiusOuter: 0.10; radiusInner:0.05;"
               material="color: white; shader: flat">
@@ -233,18 +233,29 @@ material="shader:html;target:#target;transparent:true;ratio:width;fps:1.5;"></a-
   var spheres = document.querySelectorAll(".controls.rover");
 
   var active = true;
+
   Array.from(spheres).forEach(sphere => {
+      sphere.isDown = false;
       sphere.addEventListener("click", event => {
         var { command, component } = event.target.dataset;
-        active = true;
+	active = !active;
         transmit({ active, command, component });
-        setTimeout(function() { 
-            active = false;
-            transmit({ active, command, component });
-          },2000);
-
+        sphere.isDown = !sphere.isDown;
       });
-     
+      /*sphere.addEventListener("mousedown", event => {
+        var active = true;
+        var { command, component } = event.target.dataset;
+        transmit({ active, command, component });
+        sphere.isDown = true;
+      });
+      sphere.addEventListener("mouseup", event => {
+        var active = false;
+        var { command, component } = event.target.dataset;
+        //if (deactivatables.indexOf(command) !== -1) {
+          transmit({ active, command, component });
+        //}
+        sphere.isDown = false;
+      });*/
     });
 
       var socket = io();
@@ -254,6 +265,198 @@ material="shader:html;target:#target;transparent:true;ratio:width;fps:1.5;"></a-
         socket.emit("remote-control", data);
       }
 
+     /* // const things...
+      var MIN_GUTTER_WIDTH = 50;
+      var MAX_SPEED = 100;
+
+      // Program setup
+      var socket = io();
+      var buttons = document.querySelectorAll("button");
+      var canvas = document.getElementById("touch");
+      var rover = document.querySelector(".controls.rover");
+      var context = canvas.getContext("2d");
+      var pointer = {
+        x: 0, // -1...1
+        y: 0, // -1...1
+      };
+      var previous = {
+        x: 0, // -1...1
+        y: 0, // -1...1
+      };
+      var axis = {
+        x: 0, // -1...1
+        y: 0, // -1...1
+      };
+      var deadZone = {
+        x: 0,
+        y: 0,
+      };
+
+      var controls = {
+        //camera: document.querySelector(".controls.camera"),
+        rover: document.querySelector(".controls.rover"),
+      };*/
+
+
+     /* rover.transmit = function() {
+        var now = Date.now();
+        var component = "rover";
+        var canTransmit = false;
+        var roundAxis = {};
+        // Throttle drive control transmission down to 20Hz
+        // if (pointer !== null && now - 50 >= last) {
+        if (pointer !== null) {
+          // last = now;
+          if (Math.abs(axis.x) < 10 && Math.abs(axis.y) < 10) {
+            transmit({ component, axis: deadZone });
+          } else {
+            if (axis.x !== previous.x || axis.y !== previous.y) {
+              if (axis.x >= (previous.x + 10) ||
+                  axis.x <= (previous.x - 10)) {
+                canTransmit = true;
+              }
+              if (axis.y >= (previous.y + 10) ||
+                  axis.y <= (previous.y - 10)) {
+                canTransmit = true;
+              }
+              if (canTransmit) {
+                Object.assign(previous, axis, roundAxis);
+                roundAxis.x = Math.round(axis.x / 10) * 10;
+                roundAxis.y = Math.round(axis.y / 10) * 10;
+                transmit({ component, axis: roundAxis });
+              }
+            }
+          }
+        }
+      };
+
+
+    Array.from(buttons).forEach(button => {
+      button.isDown = false;
+      button.addEventListener("pointerdown", event => {
+        var active = true;
+        var { command, component } = event.target.dataset;
+        transmit({ active, command, component });
+        button.isDown = true;
+      });
+      button.addEventListener("pointerup", event => {
+        var active = false;
+        var { command, component } = event.target.dataset;
+        if (deactivatables.indexOf(command) !== -1) {
+          transmit({ active, command, component });
+        }
+        button.isDown = false;
+      });
+    });*/
+
+     /* rover.addEventListener("pointermove", rover.transmit);
+      rover.addEventListener("pointerup", () => {
+        var component = "rover";
+        var axis = Object.assign({}, deadZone);
+        rover.transmit({ component, axis });
+      });
+
+      canvas.addEventListener("pointermove", onPointerMove);
+      canvas.addEventListener("pointerdown", onPointerDown);
+      canvas.addEventListener("pointerup", onPointerUp);
+      canvas.addEventListener("pointercancel", onPointerUp);
+      canvas.addEventListener("pointerleave", onPointerUp);
+
+
+      function draw() {
+        var x, y;
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.beginPath();
+        context.strokeStyle = "SlateGray";
+        context.lineWidth = 1;
+        context.moveTo(150, 10);
+        context.lineTo(150, 310);
+        context.closePath();
+        context.moveTo(10, 160);
+        context.lineTo(290, 160);
+        context.closePath();
+        context.stroke();
+        context.beginPath();
+        context.strokeStyle = "deeppink";
+        context.fillStyle = "deeppink";
+        context.lineWidth = "6";
+        if (pointer) {
+          x = pointer.x;
+          y = pointer.y;
+          // Disallow moving out of the control box
+          if (x > canvas.width - MIN_GUTTER_WIDTH) {
+            x = canvas.width - MIN_GUTTER_WIDTH;
+          }
+          if (x < MIN_GUTTER_WIDTH) {
+            x = MIN_GUTTER_WIDTH;
+          }
+          if (y > canvas.height - MIN_GUTTER_WIDTH) {
+            y = canvas.height - MIN_GUTTER_WIDTH;
+          }
+          if (y < MIN_GUTTER_WIDTH) {
+            y = MIN_GUTTER_WIDTH;
+          }
+          if (pointer.x === 0 && pointer.y === 0) {
+            context.arc(150, 160, 60, 0, Math.PI * 2, true);
+          } else {
+            context.arc(x, y, 40, 0, Math.PI * 2, true);
+          }
+        } else {
+          context.arc(150, 160, 60, 0, Math.PI * 2, true);
+        }
+        context.fill();
+        requestAnimationFrame(draw);
+      }
+
+      function onPointerDown(event) {
+        var x = event.clientX;
+        var y = event.clientY - (window.innerHeight - canvas.height);
+        if (event.pointerId) {
+          pointer = {
+            x: x,
+            y: y,
+            pointerType: event.pointerType,
+            pointerId: event.pointerId
+          };
+        }
+      }
+      function onPointerMove(event) {
+        var x = event.clientX;
+        var y = event.clientY - (window.innerHeight - canvas.height);
+        if (pointer && event.pointerId) {
+          // W - MIN_GUTTER_WIDTH
+          // H - MIN_GUTTER_WIDTH
+          axis.x = constrain(scale(x, MIN_GUTTER_WIDTH, canvas.width - MIN_GUTTER_WIDTH, -MAX_SPEED, MAX_SPEED), -MAX_SPEED, MAX_SPEED);
+          axis.y = constrain(scale(y, MIN_GUTTER_WIDTH, canvas.height - MIN_GUTTER_WIDTH, -MAX_SPEED, MAX_SPEED), -MAX_SPEED, MAX_SPEED);
+          axis.y *= -1;
+          pointer.x = x;
+          pointer.y = y;
+        } else {
+          axis = Object.assign({}, deadZone);
+        }
+      }
+      function onPointerUp(event) {
+        var component = "rover";
+        pointer = null;
+        if (event.type !== "pointerleave") {
+          transmit({ component, axis: deadZone });
+        }
+      }
+      function fscale(value, fromLow, fromHigh, toLow, toHigh) {
+        return (value - fromLow) * (toHigh - toLow) /
+          (fromHigh - fromLow) + toLow;
+      }
+      function scale(value, fromLow, fromHigh, toLow, toHigh) {
+        return fscale(value, fromLow, fromHigh, toLow, toHigh) | 0;
+      }
+      function constrain(value, lower, upper) {
+        return Math.min(upper, Math.max(lower, value));
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        resizeCanvas();
+        requestAnimationFrame(draw);
+      });
+*/
 
   </script>
  
