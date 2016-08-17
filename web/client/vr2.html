@@ -1,0 +1,216 @@
+<html>
+	<head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <title>EdiBot VR</title>
+    
+		<script src="lib/aframe-v0.2.0-rc1.js"></script>
+		<script src="lib/leap-0.6.4.js"></script>
+		<script src="lib/leap-plugins-0.1.11.js"></script>
+		<script src="lib/leap.rigged-hand-0.1.7.js"></script>
+		<script src="src/leap-motion-hand-grabbing.js"></script>
+		<script src="leapUtils.js"></script>
+		
+		<script>
+			window.onload = function () {
+				var controller = LeapUtils.createController();
+				controller.use("leap-motion-hand-grabbing", { leftHand: true, rightHand: true, debug: false });
+				
+				// Right hand can grab the box
+				TouchInfo.rightHand.add( document.querySelector("a-sphere").object3D);
+				
+				// Left hand can grab the box
+				TouchInfo.leftHand.add( document.querySelector("a-sphere").object3D);
+
+                console.log(controller);
+			}
+		</script>
+
+    <link rel="stylesheet" type="text/css" href="../common.css"/>
+    <style type="text/css">
+    #target {
+      width: 655px;
+      height: 9
+      12px;
+      position: absolute;
+      background: rgba(255,255,0,0.2);
+    }
+    #htmlTarget.hide {
+      z-index: -1;
+    }
+    #target h1 {
+      font-family: Arial;
+      font-size: 110px;
+      margin: 0;
+      vertical-align: top;
+      color: white;
+    }
+    #target h1 span {
+      color: tomato;
+    }
+
+ 
+    #htmlTarget {
+      position: absolute;
+      z-index: 1;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+    #debug {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
+    @media (max-width: 512px) {
+      #target {
+        width: 256px;
+        height: 126px;
+      }
+      #target h1 {
+        font-size: 55px;
+      }
+    }
+    body[data-vr="true"] .novr{
+      display: none;
+    }
+
+   #canvas-video {
+      width: 640px;
+      height: 480px;
+      border: 1px solid #ccc;
+    }
+
+
+    </style>
+  </head>
+  <body>
+    <a-scene vr-mode-ui>
+    <a-entity position="0 1.4 0.5"  wasd-controls>
+      <a-entity camera look-controls="enabled: true">
+
+        <a-entity 
+		cursor="fuse: true; timeout: 500"
+              position="0 0 -0.5"
+              geometry="primitive: ring; radiusOuter: 0.01; radiusInner:0.005;"
+              material="color: white; shader: flat">
+              <a-animation begin="click" easing="ease-in" attribute="scale"
+                fill="backwards" from="0.1 0.1 0.1" to="1 1 1"></a-animation>
+              <a-animation begin="fusing" easing="ease-in" attribute="scale"
+                fill="forwards" from="1 1 1" to="0.1 0.1 0.1"></a-animation>
+        </a-entity>
+        <a-entity leap-hand="hand: left; enablePhysics: true;"></a-entity>
+        <a-entity leap-hand="hand: right; enablePhysics: true;"></a-entity>
+      </a-entity> 
+    </a-entity>
+  
+    <a-entity rotation="-30 0 0">
+        <a-sphere id="leftsun" class="controls rover" radius="0.35" src="sunsurface.png" scale="0.5 0.5 0.5" 
+    position="-0.25 1.6 -0.5" 
+    color="grey" holdable dynamic-body="shape: sphere" data-component="rover" data-command="right" enablePhysics></a-sphere>
+
+        <a-sphere id="rightsun" class="controls rover" radius="0.35" src="sunsurface.png" scale="0.5 0.5 0.5" 
+    position="0.25 1.6 -0.5" 
+    color="grey" holdable dynamic-body="shape: sphere" data-component="rover" data-command="left" enablePhysics></a-sphere>
+
+
+        <a-entity id="up" position="0 1.8 -0.5">
+                    <a-plane position="-0.07 0 0" rotation="0 0 -45" width="0.10" height="0.28" color="#0e6157"
+    class="controls rover" data-component="rover" data-command="up" holdable></a-plane>
+                    <a-plane position="0.07 0 0" rotation="0 0 45" width="0.10" height="0.28" color="#0e6157"
+    class="controls rover" data-component="rover" data-command="up" holdable></a-plane>
+        </a-entity>
+
+        <a-entity id="down" position="0 1.4 -0.5">
+                    <a-plane position="-0.07 0 0" rotation="0 0 45" width="0.10" height="0.28" color="#0e6157"
+    class="controls rover" data-component="rover" data-command="down" holdable></a-plane>
+                    <a-plane position="0.07 0 0" rotation="0 0 -45" width="0.10" height="0.28" color="#0e6157"
+    class="controls rover" data-component="rover" data-command="down" holdable></a-plane>
+        </a-entity>
+    </a-entity>
+     <!--<a-sphere id="leftbox" radius="0.5" src="sunsurface.png" scale="0.5 0.5 0.5" position="-1 1.8 -1" 
+color="grey"></a-sphere>-->
+
+
+      <a-entity id="videoEntity" 
+geometry="primitive:plane;width:2;height:2;" 
+rotation="-30 0 0" 
+position="0 1.8 -2" 
+material="shader:html;target:#target;transparent:true;ratio:width;fps:1.5;"></a-entity>
+     
+      <!-- sky -->
+      <a-sky src="space.jpg"></a-sky>
+      
+    </a-scene>
+
+    <div id="htmlTarget" class="hide">
+      <div id="target">
+        <h1>Hello World!</h1>
+	      <canvas id="canvas-video" width="640" height="480"></canvas>
+      </div>
+  <div class="container">
+    <!--
+      The canvas size specified here is the "initial" internal resolution. jsmpeg will
+      change this internal resolution to whatever the source provides. The size the
+      canvas is displayed on the website is dictated by the CSS style.
+    -->
+  </div>
+
+    </div>
+
+    <div id="debug" class="novr"></div>
+
+    <div class="buttons novr">
+      <a href="javascript:toggleVisibility()">toggle DOM visibility</a>
+      <a href="javascript:toggleLettersDebug()">toggle debug mode for letters</a>
+    </div>
+
+    <div class="spacer"></div>
+    <div class="spacer2"></div>
+
+
+  <script src="/jsmpg.js"></script>
+  <script>
+    // Show loading notice
+    var canvas = document.getElementById('canvas-video');
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#333';
+    ctx.fillText('Loading...', canvas.width/2-30, canvas.height/3);
+    // Start the player
+    var client = new WebSocket('ws://' + document.domain + ':8084');
+    var player = new jsmpeg(client, { canvas:canvas });
+  </script>
+  <script type="text/javascript">
+
+  var spheres = document.querySelectorAll(".controls.rover");
+
+  var active = true;
+  Array.from(spheres).forEach(sphere => {
+      sphere.addEventListener("click", event => {
+        var { command, component } = event.target.dataset;
+        active = true;
+        transmit({ active, command, component });
+        setTimeout(function() { 
+            active = false;
+            transmit({ active, command, component });
+          },1000);
+
+      });
+     
+    });
+
+      var socket = io();
+
+      function transmit(data) {
+        console.log(data);
+        socket.emit("remote-control", data);
+      }
+
+
+  </script>
+ 
+
+  </body>
+
+</html>
