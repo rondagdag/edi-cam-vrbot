@@ -48,6 +48,21 @@
                     },1000);
 
 				});
+				
+				controller.on("hand.grabbing.end", function (toucherHand) {
+					//document.querySelector("a-plane").setAttribute("material", "color", "red")
+                    if (toucherHand.hand.id !== this.handID) return;
+                    /*var sphere = toucherHand.grabbedObj.el;
+
+                    sphere.setAttribute('material', 'color', this.originalColor);*/
+                    this.handID = null;
+
+                    /*var active = false;
+                    var { command, component } = sphere.dataset;
+                    //if (deactivatables.indexOf(command) !== -1) {
+                    transmit({ active, command, component });*/
+                    //}
+				});
 			}
 		</script>
 
