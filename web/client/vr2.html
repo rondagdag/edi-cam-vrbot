@@ -36,7 +36,7 @@
 
                     this.originalColor = sphere.getAttribute('material').color;
                     sphere.setAttribute('material', 'color', 'orange');
-                    this.handID = e.detail.handID;
+                    this.handID = toucherHand.hand.id;
 
                     var active = true;
                     var { command, component } = spehre.dataset;
