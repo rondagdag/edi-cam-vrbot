@@ -20,11 +20,22 @@
 				var controller = LeapUtils.createController();
 				controller.use("leap-motion-hand-grabbing", { leftHand: true, rightHand: true, debug: false });
 				
+                var spheres = document.querySelectorAll("a-sphere");
+
+               
+                Array.from(spheres).forEach(sphere => {
+                        // Right hand can grab the box
+                        TouchInfo.rightHand.add( sphere.object3D);
+				
+                        // Left hand can grab the box
+                        TouchInfo.leftHand.add( sphere.object3D);
+                });
+
 				// Right hand can grab the box
-				TouchInfo.rightHand.add( document.querySelector("a-sphere").object3D);
+				//TouchInfo.rightHand.add( document.querySelector("a-sphere").object3D);
 				
 				// Left hand can grab the box
-				TouchInfo.leftHand.add( document.querySelector("a-sphere").object3D);
+				//TouchInfo.leftHand.add( document.querySelector("a-sphere").object3D);
 
                 console.log(controller);
 
