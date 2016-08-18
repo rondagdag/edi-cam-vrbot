@@ -31,7 +31,7 @@
                 controller.on("hand.grabbing.start", function (toucherHand) {
                     if (this.handID) return;
                     console.log(toucherHand);
-                    var sphere = document.querySelector("a-sphere");
+                    var sphere = toucherHand.grabbedObj.el;
 					//document.querySelector("a-plane").setAttribute("material", "color", "green")
 
                     this.originalColor = sphere.getAttribute('material').color;
@@ -41,21 +41,26 @@
                     var active = true;
                     var { command, component } = sphere.dataset;
                     transmit({ active, command, component });
+                    setTimeout(function() { 
+                        active = false;
+                        sphere.setAttribute('material', 'color', this.originalColor);
+                        transmit({ active, command, component });
+                    },1000);
 
 				});
 				
 				controller.on("hand.grabbing.end", function (toucherHand) {
 					//document.querySelector("a-plane").setAttribute("material", "color", "red")
-                    if (toucherHand.detail.handID !== this.handID) return;
-                    var sphere = document.querySelector("a-sphere");
+                    if (toucherHand.hand.id !== this.handID) return;
+                    var sphere = toucherHand.grabbedObj.el;
 
                     sphere.setAttribute('material', 'color', this.originalColor);
                     this.handID = null;
 
-                    var active = false;
+                    /*var active = false;
                     var { command, component } = sphere.dataset;
                     //if (deactivatables.indexOf(command) !== -1) {
-                    transmit({ active, command, component });
+                    transmit({ active, command, component });*/
                     //}
 				});
 			}
