@@ -6,6 +6,9 @@ https://youtu.be/3o_jZ4jiiY0
 Read more about the project here
 https://www.hackster.io/RONDAGDAG/control-your-earth-rover-in-virtual-reality-15a9fe
 
+Checkout all my AR/VR with IoT Experiments at https://www.hackster.io/RONDAGDAG/projects
+
+
 The Node.js server is responsible for:
 
 * Listening for the incoming video stream via HTTP. [ffmpeg](https://www.ffmpeg.org/), a multimedia framework for converting and streaming audio / video, is used to encode the webcam's video to MPEG1.
